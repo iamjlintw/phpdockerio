@@ -4,12 +4,14 @@
 version: "3.1"
 services:
 
-    mysql:
+    mysqlserver:
       image: mysql:5.7
-      container_name: jlinphp70-mysql
-      working_dir: /application
+      container_name: mysqlserver57
+      #working_dir: /application
       volumes:
-        - .:/application
+      #  - .:/application
+      - ../db/data:/var/lib/mysql
+      - ./config/mysql:/etc/mysql/conf.d
       environment:
         - MYSQL_ROOT_PASSWORD=rootpass
         - MYSQL_DATABASE=db1
@@ -18,19 +20,21 @@ services:
 
     webserver:
       image: nginx:alpine
-      container_name: jlinphp70-webserver
+      container_name: webserver
       working_dir: /application
       volumes:
-          - .:/application
-          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+          - ../application:/application
+          - ./config/nginx:/etc/nginx/conf.d/
       ports:
-       - "8500:80"
+       - "80:80"
+       - "3306:3306"
 
-    php-fpm:
-      build: phpdocker/php-fpm
-      container_name: jlinphp70-php-fpm
+    phpfpm70:
+      build: dockerenv/php-fpm
+      container_name: phpfpm70
       working_dir: /application
       volumes:
-        - .:/application
-        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
-
+        - ../application:/application
+        - ./config/php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+       #environment:
+       #TZ: Asia/Taipei
